@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MonFit">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="application-name" content="MonFit">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-512.png">
+<title>MonFit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:       #0a0a0a;
+  --s1:       #111111;
+  --s2:       #1a1a1a;
+  --s3:       #222222;
+  --border:   #2c2c2c;
+  --text:     #f2f2f2;
+  --muted:    #666;
+  --dim:      #444;
+  --red:      #ff3b4e;
+  --red-dim:  rgba(255,59,78,0.12);
+  --green:    #00e676;
+  --green-dim:rgba(0,230,118,0.1);
+  --blue:     #29b6f6;
+  --blue-dim: rgba(41,182,246,0.1);
+  --gold:     #ffc107;
+  --gold-dim: rgba(255,193,7,0.12);
+  --r:        14px;
+  --r-sm:     8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100%;
+  overscroll-behavior: none;
+  padding-bottom: 100px;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px 14px;
+}
+
+.header-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+
+.wordmark { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+.wordmark em { color: var(--red); font-style: normal; }
+.wordmark span { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 4px; }
+
+.weight-pill { background: var(--s3); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.weight-pill b { color: var(--gold); }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+.stat { background: var(--s2); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 10px 8px; text-align: center; position: relative; overflow: hidden; }
+.stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.stat.s-green::before { background: var(--green); }
+.stat.s-red::before { background: var(--red); }
+.stat.s-gold::before { background: var(--gold); }
+
+.stat-val { font-size: 24px; font-weight: 800; line-height: 1; font-family: 'DM Mono', monospace; margin-bottom: 3px; }
+.stat.s-green .stat-val { color: var(--green); }
+.stat.s-red .stat-val { color: var(--red); }
+.stat.s-gold .stat-val { color: var(--gold); }
+.stat-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+
+.month-nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 0; }
+.month-display { text-align: center; }
+.month-name { font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1; text-transform: uppercase; }
+.month-year { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: 2px; margin-top: 1px; }
+
+.nav-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--s2); border: 1px solid var(--border); color: var(--text); font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, transform 0.1s; user-select: none; flex-shrink: 0; }
+.nav-btn:active { transform: scale(0.88); background: var(--s3); }
+
+.prog-strip { margin: 14px 20px 0; background: linear-gradient(135deg, rgba(255,59,78,0.08), rgba(255,59,78,0.03)); border: 1px solid rgba(255,59,78,0.2); border-radius: var(--r-sm); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.prog-name { font-size: 13px; font-weight: 700; color: var(--red); letter-spacing: 0.3px; }
+.prog-target { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--gold); white-space: nowrap; }
+
+.weight-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 20px 0; }
+.w-card { background: var(--s2); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 10px 8px; text-align: center; }
+.w-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px; font-weight: 600; }
+.w-input { width: 100%; background: var(--s3); border: 1px solid var(--border); border-radius: 6px; color: var(--gold); font-size: 17px; font-weight: 700; text-align: center; padding: 5px 4px; font-family: 'DM Mono', monospace; outline: none; -webkit-appearance: none; transition: border-color 0.2s; }
+.w-input:focus { border-color: var(--gold); }
+.w-input.loss-pos { color: var(--green); }
+.w-input.loss-neg { color: var(--red); }
+
+.day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 16px 20px 4px; }
+.dh { text-align: center; font-size: 10px; font-weight: 700; padding: 5px 0; border-radius: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+.dh-run  { color: #ff8a93; background: rgba(255,59,78,0.1); }
+.dh-walk { color: #81d4fa; background: rgba(41,182,246,0.1); }
+.dh-big  { color: #69f0ae; background: rgba(0,230,118,0.1); }
+.dh-rest { color: var(--dim); }
+
+.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 0 20px; }
+
+.cell { aspect-ratio: 1; border-radius: var(--r-sm); background: var(--s1); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; min-height: 42px; transition: transform 0.12s; cursor: default; }
+.cell.empty { background: transparent; border-color: transparent; }
+.cell.workday { cursor: pointer; }
+.cell.workday:active { transform: scale(0.88); }
+
+.cell.t-run  { background: rgba(255,59,78,0.06); border-color: rgba(255,59,78,0.18); }
+.cell.t-walk { background: rgba(41,182,246,0.05); border-color: rgba(41,182,246,0.15); }
+.cell.t-big  { background: rgba(0,230,118,0.05); border-color: rgba(0,230,118,0.15); }
+
+.cell.t-run::before  { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--red); }
+.cell.t-walk::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--blue); }
+.cell.t-big::before  { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--green); }
+
+.cell-num { font-size: 13px; font-weight: 700; line-height: 1; font-family: 'DM Mono', monospace; }
+.cell-icon { font-size: 10px; margin-top: 1px; line-height: 1; }
+
+.cell.today { box-shadow: 0 0 0 2px var(--gold); border-color: var(--gold) !important; }
+.today-pip { position: absolute; bottom: 3px; width: 4px; height: 4px; background: var(--gold); border-radius: 50%; }
+
+.cell.done { background: rgba(0,230,118,0.12) !important; border-color: rgba(0,230,118,0.4) !important; }
+.cell.missed { background: rgba(255,59,78,0.1) !important; border-color: rgba(255,59,78,0.35) !important; }
+.status-emoji { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+.month-progress { margin: 14px 20px 0; background: var(--s2); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; }
+.mp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mp-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+.mp-pct { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; color: var(--green); }
+.bar-track { background: var(--s3); border-radius: 20px; height: 6px; overflow: hidden; margin-bottom: 10px; }
+.bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--green), var(--blue)); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+.mp-stats { display: flex; justify-content: space-between; font-size: 12px; font-family: 'DM Mono', monospace; }
+.mp-done { color: var(--green); }
+.mp-missed { color: var(--red); }
+.mp-left { color: var(--muted); }
+
+.legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 20px 0; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); font-weight: 600; }
+.leg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: center; gap: 28px; z-index: 50; }
+.hint { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+.toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: var(--s3); border: 1px solid var(--border); border-radius: 16px; padding: 16px 24px; font-size: 32px; text-align: center; z-index: 200; opacity: 0; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.cell { animation: fadeUp 0.3s ease both; }
+
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(0.85); } 70% { transform: scale(1.05); } 100% { transform: scale(1); } }
+.cell.popping { animation: pop 0.3s ease; }
+
+.save-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; display: inline-block; margin-left: 6px; opacity: 0; transition: opacity 0.3s; }
+.save-dot.visible { opacity: 1; }
+
+/* INSTALL BANNER */
+.install-banner { display: none; margin: 12px 20px 0; background: linear-gradient(135deg, rgba(255,193,7,0.1), rgba(255,193,7,0.05)); border: 1px solid rgba(255,193,7,0.3); border-radius: var(--r-sm); padding: 12px 14px; align-items: center; justify-content: space-between; gap: 10px; }
+.install-banner.show { display: flex; }
+.install-text { font-size: 12px; color: var(--gold); font-weight: 600; }
+.install-btn { background: var(--gold); color: #000; border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Syne', sans-serif; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row1">
+    <div class="wordmark">Mon<em>Fit</em><span>2026·27</span><span class="save-dot" id="save-dot"></span></div>
+    <div class="weight-pill">102 → <b>72 kg</b></div>
+  </div>
+  <div class="stats">
+    <div class="stat s-green"><div class="stat-val" id="g-done">0</div><div class="stat-lbl">✅ Faites</div></div>
+    <div class="stat s-red"><div class="stat-val" id="g-missed">0</div><div class="stat-lbl">❌ Manquées</div></div>
+    <div class="stat s-gold"><div class="stat-val" id="g-streak">0</div><div class="stat-lbl">🔥 Série</div></div>
+  </div>
+</div>
+
+<div class="install-banner" id="install-banner">
+  <div class="install-text">📲 Installer MonFit sur votre écran</div>
+  <button class="install-btn" id="install-btn">Installer</button>
+</div>
+
+<div class="month-nav">
+  <button class="nav-btn" id="prev">‹</button>
+  <div class="month-display">
+    <div class="month-name" id="m-name">MAI</div>
+    <div class="month-year" id="m-year">2026</div>
+  </div>
+  <button class="nav-btn" id="next">›</button>
+</div>
+
+<div class="prog-strip">
+  <div class="prog-name" id="prog-name">Foundation</div>
+  <div class="prog-target" id="prog-target">102 → 95 kg</div>
+</div>
+
+<div class="weight-row">
+  <div class="w-card"><label class="w-label">Début mois</label><input class="w-input" id="w-start" type="number" step="0.1" placeholder="···"></div>
+  <div class="w-card"><label class="w-label">Fin mois</label><input class="w-input" id="w-end" type="number" step="0.1" placeholder="···"></div>
+  <div class="w-card"><label class="w-label">Perte</label><input class="w-input" id="w-loss" placeholder="···" readonly></div>
+</div>
+
+<div class="day-headers" id="day-headers"></div>
+<div class="calendar" id="calendar"></div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:var(--red);opacity:.7"></div>Running</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--blue);opacity:.7"></div>Marche</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--green);opacity:.7"></div>Darebee</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--gold)"></div>Aujourd'hui</div>
+</div>
+
+<div class="month-progress">
+  <div class="mp-header">
+    <div class="mp-title">Progression du mois</div>
+    <div class="mp-pct" id="mp-pct">0%</div>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
+  <div class="mp-stats">
+    <span class="mp-done" id="mp-done">0 réalisées</span>
+    <span class="mp-missed" id="mp-missed">0 manquées</span>
+    <span class="mp-left" id="mp-left">0 restantes</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="bottom-bar">
+  <div class="hint"><span>1×</span> tap → ✅</div>
+  <div class="hint"><span>2×</span> taps → ❌</div>
+  <div class="hint"><span>3×</span> taps → reset</div>
+</div>
+
+<script>
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.remove('show');
+});
+
+// ═══ DATA ═══
+const MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const DAYS   = ["LUN","MAR","MER","JEU","VEN","SAM","DIM"];
+
+const SCHED = {
+  0: { icon:"🚶", label:"Marche",      type:"walk" },
+  1: { icon:"🏃", label:"Running",     type:"run"  },
+  2: { icon:"🚶", label:"Récup",       type:"walk" },
+  3: { icon:"🏃", label:"Running",     type:"run"  },
+  4: { icon:"🏃", label:"Running",     type:"run"  },
+  5: { icon:"💪", label:"Darebee+Run", type:"big"  },
+  6: { icon:"💪", label:"Darebee",     type:"big"  },
+};
+
+const DH_CLASS = {0:"dh-walk",1:"dh-run",2:"dh-walk",3:"dh-run",4:"dh-run",5:"dh-big",6:"dh-big"};
+
+const PROGRAMS = {
+  "2026-5":  {n:"Foundation",           t:"102 → 95 kg"},
+  "2026-6":  {n:"30 Days of Change",    t:"95 → 88 kg"},
+  "2026-7":  {n:"Total Body Strength",  t:"88 → 84 kg"},
+  "2026-8":  {n:"Total Body Strength",  t:"84 → 81 kg"},
+  "2026-9":  {n:"30 Days of Change",    t:"81 → 79 kg"},
+  "2026-10": {n:"Total Body Strength+", t:"79 → 77 kg"},
+  "2026-11": {n:"Programme libre",      t:"77 → 75 kg"},
+  "2026-12": {n:"Fêtes actif 🎄",       t:"75 → 75 kg"},
+  "2027-1":  {n:"Nouveau cycle",        t:"75 → 73 kg"},
+  "2027-2":  {n:"Total Body Strength+", t:"73 → 72 kg"},
+  "2027-3":  {n:"30 Days of Change",    t:"72 → 72 kg"},
+  "2027-4":  {n:"OBJECTIF ATTEINT 🏆",  t:"72 kg !"},
+  "2027-5":  {n:"Maintien actif",       t:"72–74 kg"},
+  "2027-6":  {n:"Maintien actif",       t:"72–74 kg"},
+  "2027-7":  {n:"Été forme max ☀️",     t:"72–74 kg"},
+  "2027-8":  {n:"Été forme max ☀️",     t:"72–74 kg"},
+  "2027-9":  {n:"Nouveau défi",         t:"72–74 kg"},
+  "2027-10": {n:"Nouveau défi",         t:"72–74 kg"},
+  "2027-11": {n:"Programme libre",      t:"72–74 kg"},
+  "2027-12": {n:"Bilan annuel 🎉",      t:"72–74 kg"},
+};
+
+const STORAGE_KEY = 'monfit_v2';
+let state = load();
+let curY = 2026, curM = 5;
+const today = new Date();
+
+function load() {
+  try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : {sessions:{},weights:{}}; }
+  catch { return {sessions:{},weights:{}}; }
+}
+
+let saveTimer;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const dot = document.getElementById('save-dot');
+    dot.classList.add('visible');
+    setTimeout(() => dot.classList.remove('visible'), 1200);
+  }, 300);
+}
+
+function daysInMonth(y,m) { return new Date(y,m,0).getDate(); }
+function firstWeekday(y,m) { const d=new Date(y,m-1,1).getDay(); return d===0?6:d-1; }
+function weekday(y,m,d) { const w=new Date(y,m-1,d).getDay(); return w===0?6:w-1; }
+function isToday(y,m,d) { return y===today.getFullYear()&&m===today.getMonth()+1&&d===today.getDate(); }
+function mk(y,m) { return `${y}-${m}`; }
+function dk(y,m,d) { return `${y}-${m}-${d}`; }
+
+function showToast(emoji) {
+  const t = document.getElementById('toast');
+  t.textContent = emoji;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 700);
+}
+
+function render() {
+  const key = mk(curY,curM);
+  const prog = PROGRAMS[key] || {n:"Programme libre",t:"Maintien"};
+  document.getElementById('m-name').textContent = MONTHS[curM-1].toUpperCase();
+  document.getElementById('m-year').textContent = curY;
+  document.getElementById('prog-name').textContent = prog.n;
+  document.getElementById('prog-target').textContent = prog.t;
+
+  const wData = state.weights[key] || {};
+  document.getElementById('w-start').value = wData.start ?? '';
+  document.getElementById('w-end').value = wData.end ?? '';
+  updateLoss();
+
+  document.getElementById('day-headers').innerHTML = DAYS.map((d,i) =>
+    `<div class="dh ${DH_CLASS[i]||'dh-rest'}">${d}</div>`).join('');
+
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+  const total = daysInMonth(curY,curM);
+  const first = firstWeekday(curY,curM);
+
+  for (let i=0;i<first;i++) { const e=document.createElement('div'); e.className='cell empty'; cal.appendChild(e); }
+
+  let mDone=0,mMissed=0,mWork=0;
+
+  for (let d=1;d<=total;d++) {
+    const wd = weekday(curY,curM,d);
+    const sched = SCHED[wd];
+    const key2 = dk(curY,curM,d);
+    const status = state.sessions[key2];
+    const cell = document.createElement('div');
+    cell.style.animationDelay = `${(d+first)*18}ms`;
+
+    if (sched) {
+      mWork++;
+      cell.className = `cell workday t-${sched.type}`;
+      if (status==='done')   { cell.classList.add('done');   mDone++; }
+      if (status==='missed') { cell.classList.add('missed'); mMissed++; }
+
+      if (status) {
+        const ov=document.createElement('div'); ov.className='status-emoji';
+        ov.textContent = status==='done'?'✅':'❌'; cell.appendChild(ov);
+        const num=document.createElement('div'); num.className='cell-num';
+        num.textContent=d; num.style.cssText='position:absolute;top:4px;left:6px;font-size:9px;color:rgba(255,255,255,0.3)';
+        cell.appendChild(num);
+      } else {
+        cell.innerHTML=`<div class="cell-num">${d}</div><div class="cell-icon">${sched.icon}</div>`;
+      }
+      cell.addEventListener('click', ()=>tap(key2,cell));
+    } else {
+      cell.className='cell';
+      cell.innerHTML=`<div class="cell-num">${d}</div>`;
+    }
+
+    if (isToday(curY,curM,d)) {
+      cell.classList.add('today');
+      if (!sched) { const p=document.createElement('div'); p.className='today-pip'; cell.appendChild(p); }
+    }
+    cal.appendChild(cell);
+  }
+
+  const left=mWork-mDone-mMissed;
+  const pct=mWork>0?Math.round((mDone/mWork)*100):0;
+  document.getElementById('bar-fill').style.width=pct+'%';
+  document.getElementById('mp-pct').textContent=pct+'%';
+  document.getElementById('mp-done').textContent=`${mDone} réalisée${mDone>1?'s':''}`;
+  document.getElementById('mp-missed').textContent=`${mMissed} manquée${mMissed>1?'s':''}`;
+  document.getElementById('mp-left').textContent=`${left} restante${left>1?'s':''}`;
+  updateGlobal();
+}
+
+function tap(key,cell) {
+  const cur=state.sessions[key];
+  let next;
+  if (!cur) next='done';
+  else if (cur==='done') next='missed';
+  else next=null;
+  if (next) state.sessions[key]=next; else delete state.sessions[key];
+  save();
+  cell.classList.add('popping');
+  cell.addEventListener('animationend',()=>cell.classList.remove('popping'),{once:true});
+  showToast(next==='done'?'✅':next==='missed'?'❌':'↩️');
+  render();
+}
+
+function updateLoss() {
+  const s=parseFloat(document.getElementById('w-start').value);
+  const e=parseFloat(document.getElementById('w-end').value);
+  const el=document.getElementById('w-loss');
+  if (!isNaN(s)&&!isNaN(e)) {
+    const diff=+(s-e).toFixed(1);
+    el.value=diff>0?`−${diff} kg`:`+${Math.abs(diff)} kg`;
+    el.className='w-input '+(diff>0?'loss-pos':'loss-neg');
+  } else { el.value=''; el.className='w-input'; }
+}
+
+function updateGlobal() {
+  let done=0,missed=0;
+  Object.values(state.sessions).forEach(v=>{if(v==='done')done++;else if(v==='missed')missed++;});
+  let streak=0;
+  const allDone=Object.keys(state.sessions).filter(k=>state.sessions[k]==='done').sort().reverse();
+  if (allDone.length) {
+    let prev=null,s=0;
+    for (const k of allDone) {
+      const [y,m,d]=k.split('-').map(Number);
+      const date=new Date(y,m-1,d);
+      if (!prev){s=1;prev=date;continue;}
+      const diff=Math.round((prev-date)/86400000);
+      if (diff<=2){s++;prev=date;}else break;
+    }
+    streak=s;
+  }
+  document.getElementById('g-done').textContent=done;
+  document.getElementById('g-missed').textContent=missed;
+  document.getElementById('g-streak').textContent=streak;
+}
+
+['w-start','w-end'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const key=mk(curY,curM);
+    if (!state.weights[key]) state.weights[key]={};
+    state.weights[key][id==='w-start'?'start':'end']=document.getElementById(id).value;
+    save(); updateLoss();
+  });
+});
+
+document.getElementById('prev').addEventListener('click',()=>{
+  curM--; if(curM<1){curM=12;curY--;}
+  if(curY<2026||(curY===2026&&curM<5)){curY=2026;curM=5;} render();
+});
+document.getElementById('next').addEventListener('click',()=>{
+  curM++; if(curM>12){curM=1;curY++;}
+  if(curY>2027){curY=2027;curM=12;} render();
+});
+
+render();
+</script>
+</body>
+</html>
