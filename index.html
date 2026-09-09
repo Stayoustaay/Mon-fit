@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MonFit">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="./manifest.json">
+<title>MonFit</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--s1:#111;--s2:#1a1a1a;--s3:#222;--border:#2c2c2c;--text:#f2f2f2;--muted:#666;--red:#ff3b4e;--green:#00e676;--blue:#29b6f6;--gold:#ffc107;--r:14px;--r-sm:8px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100%;overscroll-behavior:none;padding-bottom:100px}
+
+/* LOGEN QUOTE */
+.logen-quote{background:#0f0000;border-bottom:2px solid #8b0000;padding:16px 20px;position:relative;overflow:hidden}
+.logen-quote::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(139,0,0,0.03) 10px,rgba(139,0,0,0.03) 20px);pointer-events:none}
+.skull-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.skull-deco{font-size:14px;color:#8b0000;opacity:.7}
+.divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,#8b0000,transparent)}
+.logen-text{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:#e8d5b0;line-height:1.6;letter-spacing:.5px;text-align:center;margin-bottom:10px;text-shadow:0 0 20px rgba(139,0,0,.4)}
+.logen-bottom{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.logen-author{font-family:'Cinzel',serif;font-size:9px;color:#8b0000;font-weight:700;letter-spacing:2px;text-transform:uppercase;white-space:nowrap}
+.logen-refresh{display:block;width:100%;text-align:center;padding:6px;background:transparent;border:none;color:#8b0000;font-size:10px;font-family:'Cinzel',serif;letter-spacing:1px;cursor:pointer}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:50;background:rgba(10,10,10,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:16px 20px 14px}
+.header-row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.wordmark{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.wordmark em{color:var(--red);font-style:normal}
+.wordmark span{color:var(--muted);font-weight:400;font-size:13px;margin-left:4px}
+.weight-pill{background:var(--s3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+.weight-pill b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 8px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.s-green::before{background:var(--green)}.stat.s-red::before{background:var(--red)}.stat.s-gold::before{background:var(--gold)}
+.stat-val{font-size:24px;font-weight:800;line-height:1;font-family:'DM Mono',monospace;margin-bottom:3px}
+.stat.s-green .stat-val{color:var(--green)}.stat.s-red .stat-val{color:var(--red)}.stat.s-gold .stat-val{color:var(--gold)}
+.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+
+/* BADGES */
+.badges-section{padding:12px 20px;background:var(--bg)}
+.badges-title{font-family:'Cinzel',serif;font-size:9px;color:#8b0000;text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:8px}
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.badge{border-radius:var(--r-sm);padding:10px 6px;text-align:center;position:relative;overflow:hidden;border:1px solid var(--border);background:var(--s2)}
+.badge::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.badge.locked{opacity:.2;filter:grayscale(1)}
+.badge.un-red{background:rgba(139,0,0,.2);border-color:#8b0000}.badge.un-red::before{background:#8b0000}
+.badge.un-gold{background:rgba(184,134,11,.15);border-color:#b8860b}.badge.un-gold::before{background:#b8860b}
+.badge.un-green{background:rgba(0,100,50,.2);border-color:#1a6b3a}.badge.un-green::before{background:#1a6b3a}
+.badge.un-purple{background:rgba(80,0,120,.2);border-color:#500078}.badge.un-purple::before{background:#500078}
+.badge-icon{font-size:22px;line-height:1;margin-bottom:4px}
+.badge-name{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-family:'Cinzel',serif;color:var(--muted)}
+.badge.un-red .badge-name{color:#cc2200}.badge.un-gold .badge-name{color:#b8860b}
+.badge.un-green .badge-name{color:#2a9a5a}.badge.un-purple .badge-name{color:#9932cc}
+
+/* BADGE POPUP */
+.badge-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.5);background:var(--s2);border:2px solid var(--gold);border-radius:20px;padding:24px 32px;text-align:center;z-index:300;opacity:0;transition:all .4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
+.badge-popup.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.bp-icon{font-size:48px;margin-bottom:8px}.bp-title{font-size:11px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'Cinzel',serif}.bp-name{font-size:16px;font-weight:800;color:var(--text);font-family:'Cinzel',serif}
+
+/* MONTH NAV */
+.month-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0}
+.month-display{text-align:center}
+.month-name{font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1;text-transform:uppercase}
+.month-year{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:2px;margin-top:1px}
+.nav-btn{width:44px;height:44px;border-radius:50%;background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;flex-shrink:0}
+.nav-btn:active{transform:scale(.88);background:var(--s3)}
+
+/* PROG STRIP */
+.prog-strip{margin:14px 20px 0;background:linear-gradient(135deg,rgba(255,59,78,.08),rgba(255,59,78,.03));border:1px solid rgba(255,59,78,.2);border-radius:var(--r-sm);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.prog-name{font-size:13px;font-weight:700;color:var(--red);letter-spacing:.3px}
+.prog-target{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);white-space:nowrap}
+
+/* WEIGHT */
+.weight-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 20px 0}
+.w-card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 8px;text-align:center}
+.w-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:5px;font-weight:600}
+.w-input{width:100%;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--gold);font-size:17px;font-weight:700;text-align:center;padding:5px 4px;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none}
+.w-input:focus{border-color:var(--gold)}.w-input.loss-pos{color:var(--green)}.w-input.loss-neg{color:var(--red)}
+
+/* CALENDAR */
+.day-headers{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:16px 20px 4px}
+.dh{text-align:center;font-size:10px;font-weight:700;padding:5px 0;border-radius:6px;letter-spacing:.5px;text-transform:uppercase}
+.dh-run{color:#ff8a93;background:rgba(255,59,78,.1)}.dh-walk{color:#81d4fa;background:rgba(41,182,246,.1)}.dh-big{color:#69f0ae;background:rgba(0,230,118,.1)}.dh-rest{color:var(--muted)}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 20px}
+.cell{aspect-ratio:1;border-radius:var(--r-sm);background:var(--s1);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:42px;transition:transform .12s;cursor:default}
+.cell.empty{background:transparent;border-color:transparent}
+.cell.workday{cursor:pointer}.cell.workday:active{transform:scale(.88)}
+.cell.t-run{background:rgba(255,59,78,.06);border-color:rgba(255,59,78,.18)}.cell.t-run::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--red)}
+.cell.t-walk{background:rgba(41,182,246,.05);border-color:rgba(41,182,246,.15)}.cell.t-walk::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--blue)}
+.cell.t-big{background:rgba(0,230,118,.05);border-color:rgba(0,230,118,.15)}.cell.t-big::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--green)}
+.cell-num{font-size:13px;font-weight:700;line-height:1;font-family:'DM Mono',monospace}
+.cell-icon{font-size:10px;margin-top:1px;line-height:1}
+.cell.today{box-shadow:0 0 0 2px var(--gold);border-color:var(--gold)!important}
+.today-pip{position:absolute;bottom:3px;width:4px;height:4px;background:var(--gold);border-radius:50%}
+.cell.done{background:rgba(0,230,118,.12)!important;border-color:rgba(0,230,118,.4)!important}
+.cell.missed{background:rgba(255,59,78,.1)!important;border-color:rgba(255,59,78,.35)!important}
+.status-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+
+/* PROGRESS */
+.month-progress{margin:14px 20px 0;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.mp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mp-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700}
+.mp-pct{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--green)}
+.bar-track{background:var(--s3);border-radius:20px;height:6px;overflow:hidden;margin-bottom:10px}
+.bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .5s}
+.mp-stats{display:flex;justify-content:space-between;font-size:12px;font-family:'DM Mono',monospace}
+.mp-done{color:var(--green)}.mp-missed{color:var(--red)}.mp-left{color:var(--muted)}
+
+/* LEGEND */
+.legend{display:flex;gap:12px;flex-wrap:wrap;padding:12px 20px 0}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-weight:600}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* BOTTOM */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 20px;display:flex;justify-content:center;gap:28px;z-index:50}
+.hint{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* TOAST */
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:var(--s3);border:1px solid var(--border);border-radius:16px;padding:16px 24px;font-size:32px;text-align:center;z-index:200;opacity:0;transition:all .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+/* SAVE DOT */
+.save-dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block;margin-left:6px;opacity:0;transition:opacity .3s}
+.save-dot.visible{opacity:1}
+
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(.85)}70%{transform:scale(1.05)}100%{transform:scale(1)}}
+.cell.popping{animation:pop .3s ease}
+</style>
+</head>
+<body>
+
+<!-- LOGEN QUOTE - EN HAUT -->
+<div class="logen-quote" id="logen-box">
+  <div class="skull-row">
+    <span class="skull-deco">☠</span>
+    <div class="divider-line"></div>
+    <span class="skull-deco">☠</span>
+  </div>
+  <div class="logen-text" id="logen-text">L'homme qui recule ne recule que vers sa tombe.</div>
+  <div class="logen-bottom">
+    <div class="divider-line"></div>
+    <div class="logen-author" id="logen-author">— Logen Neuf Doigts</div>
+    <div class="divider-line"></div>
+  </div>
+  <button class="logen-refresh" onclick="nextQuote()">☩ Nouvelle citation ☩</button>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-row1">
+    <div class="wordmark">Mon<em>Fit</em><span>2026·27</span><span class="save-dot" id="save-dot"></span></div>
+    <div class="weight-pill">102 → <b>72 kg</b></div>
+  </div>
+  <div class="stats">
+    <div class="stat s-green"><div class="stat-val" id="g-done">0</div><div class="stat-lbl">✅ Faites</div></div>
+    <div class="stat s-red"><div class="stat-val" id="g-missed">0</div><div class="stat-lbl">❌ Manquées</div></div>
+    <div class="stat s-gold"><div class="stat-val" id="g-streak">0</div><div class="stat-lbl">🔥 Série</div></div>
+  </div>
+</div>
+
+<!-- BADGES -->
+<div class="badges-section">
+  <div class="badges-title">⚔ Trophées de Guerre</div>
+  <div class="badges-grid" id="badges-grid"></div>
+</div>
+
+<!-- MONTH NAV -->
+<div class="month-nav">
+  <button class="nav-btn" id="prev">‹</button>
+  <div class="month-display">
+    <div class="month-name" id="m-name">SEPTEMBRE</div>
+    <div class="month-year" id="m-year">2026</div>
+  </div>
+  <button class="nav-btn" id="next">›</button>
+</div>
+
+<!-- PROG -->
+<div class="prog-strip">
+  <div class="prog-name" id="prog-name">30 Days of Change</div>
+  <div class="prog-target" id="prog-target">81 → 79 kg</div>
+</div>
+
+<!-- WEIGHT -->
+<div class="weight-row">
+  <div class="w-card"><label class="w-label">Début mois</label><input class="w-input" id="w-start" type="number" step="0.1" placeholder="···"></div>
+  <div class="w-card"><label class="w-label">Fin mois</label><input class="w-input" id="w-end" type="number" step="0.1" placeholder="···"></div>
+  <div class="w-card"><label class="w-label">Perte</label><input class="w-input" id="w-loss" placeholder="···" readonly></div>
+</div>
+
+<!-- CALENDAR -->
+<div class="day-headers" id="day-headers"></div>
+<div class="calendar" id="calendar"></div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:var(--red);opacity:.7"></div>Running</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--blue);opacity:.7"></div>Marche</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--green);opacity:.7"></div>Darebee</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--gold)"></div>Aujourd'hui</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="month-progress">
+  <div class="mp-header"><div class="mp-title">Progression du mois</div><div class="mp-pct" id="mp-pct">0%</div></div>
+  <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
+  <div class="mp-stats">
+    <span class="mp-done" id="mp-done">0 réalisées</span>
+    <span class="mp-missed" id="mp-missed">0 manquées</span>
+    <span class="mp-left" id="mp-left">0 restantes</span>
+  </div>
+</div>
+
+<!-- TOAST & BADGE POPUP -->
+<div class="toast" id="toast"></div>
+<div class="badge-popup" id="badge-popup">
+  <div class="bp-icon" id="bp-icon">🏆</div>
+  <div class="bp-title">Badge débloqué !</div>
+  <div class="bp-name" id="bp-name">Champion</div>
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom-bar">
+  <div class="hint"><span>1×</span> tap → ✅</div>
+  <div class="hint"><span>2×</span> taps → ❌</div>
+  <div class="hint"><span>3×</span> taps → reset</div>
+</div>
+
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+// ═══ LOGEN QUOTES ═══
+const QUOTES = [
+  {t:"L'homme qui recule ne recule que vers sa tombe.", a:"Logen Neuf Doigts"},
+  {t:"Encore en vie. C'est suffisant pour commencer.", a:"Logen Neuf Doigts"},
+  {t:"Tu peux saigner, tu peux souffrir. Mais tu continues quand même.", a:"Le Neuvième Rescapé"},
+  {t:"Chaque jour est une chance de prouver que tu mérites de vivre.", a:"Logen Neuf Doigts"},
+  {t:"Les lâches meurent mille fois. Les guerriers ne meurent qu'une fois.", a:"Bayaz, Premier des Mages"},
+  {t:"La douleur est temporaire. Abandonner est éternel.", a:"Bayaz, Premier des Mages"},
+  {t:"Chaque séance cochée est un jour volé à la faiblesse.", a:"Le Prince Écorché"},
+  {t:"Il faut être encore en vie pour changer. Alors vis. Et change.", a:"Logen Neuf Doigts"},
+  {t:"Ce n'est pas la force qui fait le guerrier. C'est la volonté de se relever.", a:"Ferro Maljinn"},
+  {t:"Le monde n'attend pas que tu sois prêt. Avance quand même.", a:"Logen Neuf Doigts"},
+  {t:"Les cicatrices prouvent que tu as survécu. Continue à en gagner.", a:"Le Neuvième Rescapé"},
+  {t:"La peur ne disparaît pas. Tu apprends juste à marcher avec elle.", a:"Logen Neuf Doigts"},
+  {t:"Frappe pas aussi fort que tu aimerais. Frappe aussi fort que tu peux.", a:"Bayaz, Premier des Mages"},
+  {t:"Mieux vaut mourir debout que vivre à genoux.", a:"Le Prince Écorché"},
+  {t:"Ce n'est pas le destin qui forge un homme. C'est chaque choix qu'il fait.", a:"Logen Neuf Doigts"},
+  {t:"Aujourd'hui tu as transpiré. Demain tu seras plus fort.", a:"Le Neuvième Rescapé"},
+  {t:"Un homme qui a tout perdu et qui se relève — voilà le vrai courage.", a:"Logen Neuf Doigts"},
+  {t:"Le sang coule. Les os cassent. Et pourtant tu te remets debout.", a:"Ferro Maljinn"},
+  {t:"Chaque pas que tu fais est un pas que la faiblesse n'a pas fait.", a:"Logen Neuf Doigts"},
+  {t:"Il ne s'agit pas d'être le meilleur. Il s'agit de ne pas abandonner.", a:"Bayaz, Premier des Mages"},
+];
+
+let qIdx = Math.floor(Math.random() * QUOTES.length);
+
+function updateQuote(){
+  document.getElementById('logen-text').textContent = '"' + QUOTES[qIdx].t + '"';
+  document.getElementById('logen-author').textContent = '— ' + QUOTES[qIdx].a;
+}
+
+function nextQuote(){
+  qIdx = (qIdx+1) % QUOTES.length;
+  updateQuote();
+}
+
+updateQuote();
+setInterval(()=>{ qIdx=(qIdx+1)%QUOTES.length; updateQuote(); }, 3600000);
+
+// ═══ DATA ═══
+const MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const DAYS = ["LUN","MAR","MER","JEU","VEN","SAM","DIM"];
+const SCHED = {
+  0:{icon:"🚶",label:"Marche",type:"walk"},
+  1:{icon:"🏃",label:"Running",type:"run"},
+  2:{icon:"💪",label:"Darebee",type:"big"},
+  3:{icon:"🚶",label:"Récup",type:"walk"},
+  4:{icon:"🏃",label:"Running",type:"run"},
+  5:{icon:"💪",label:"Darebee+Run",type:"big"},
+  6:{icon:"😴",label:"Repos",type:"rest"},
+};
+const DH_CLASS = {0:"dh-walk",1:"dh-run",2:"dh-big",3:"dh-walk",4:"dh-run",5:"dh-big",6:"dh-rest"};
+
+const PROGRAMS = {
+  "2026-5":{n:"Foundation",t:"102 → 95 kg"},
+  "2026-6":{n:"30 Days of Change",t:"95 → 88 kg"},
+  "2026-7":{n:"Total Body Strength",t:"88 → 84 kg"},
+  "2026-8":{n:"Total Body Strength",t:"84 → 81 kg"},
+  "2026-9":{n:"30 Days of Change",t:"81 → 79 kg"},
+  "2026-10":{n:"Total Body Strength+",t:"79 → 77 kg"},
+  "2026-11":{n:"Programme libre",t:"77 → 75 kg"},
+  "2026-12":{n:"Fêtes actif 🎄",t:"75 → 75 kg"},
+  "2027-1":{n:"Nouveau cycle",t:"75 → 73 kg"},
+  "2027-2":{n:"Total Body Strength+",t:"73 → 72 kg"},
+  "2027-3":{n:"30 Days of Change",t:"72 → 72 kg"},
+  "2027-4":{n:"OBJECTIF ATTEINT 🏆",t:"72 kg !"},
+};
+
+function getProg(y,m){
+  const k=`${y}-${m}`;
+  if(PROGRAMS[k]) return PROGRAMS[k];
+  const mo=["","Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
+  return {n:"Maintien à vie 💪",t:`${mo[m]} ${y}`};
+}
+
+// ═══ BADGES ═══
+const BADGES = [
+  {id:'first_blood', icon:'🩸', name:'Premier Sang',   col:'un-red',    check:(s,_)=>done(s)>=1},
+  {id:'survivor',    icon:'💀', name:'Survivant',      col:'un-red',    check:(s,_)=>done(s)>=7},
+  {id:'warrior',     icon:'⚔️', name:'Guerrier',       col:'un-purple', check:(s,_)=>done(s)>=20},
+  {id:'legend',      icon:'👑', name:'Légende',        col:'un-gold',   check:(s,_)=>done(s)>=50},
+  {id:'streak3',     icon:'🔥', name:'En Feu',         col:'un-green',  check:(s,st)=>st>=3},
+  {id:'streak7',     icon:'☠️', name:'Implacable',     col:'un-red',    check:(s,st)=>st>=7},
+  {id:'streak14',    icon:'🗡️', name:'Neuf Doigts',    col:'un-gold',   check:(s,st)=>st>=14},
+  {id:'no_miss',     icon:'🛡️', name:'Sans Faille',    col:'un-green',  check:(s,_,mi)=>mi===0&&done(s)>=5},
+  {id:'comeback',    icon:'⚡', name:'Résurrection',   col:'un-purple', check:(s,_)=>missed(s)>=1&&done(s)>=3},
+  {id:'centurion',   icon:'🏛️', name:'Centurion',      col:'un-gold',   check:(s,_)=>done(s)>=100},
+  {id:'half_goal',   icon:'⚖️', name:'Mi-Chemin',      col:'un-green',  check:(s,_)=>done(s)>=15},
+  {id:'iron_will',   icon:'🪖', name:'Volonté de Fer', col:'un-purple', check:(s,_)=>done(s)>=30},
+];
+
+const done = s => Object.values(s).filter(v=>v==='done').length;
+const missed = s => Object.values(s).filter(v=>v==='missed').length;
+
+function getUnlocked(){ try{ return JSON.parse(localStorage.getItem('monfit_badges')||'[]'); }catch{return[];} }
+function saveUnlocked(a){ localStorage.setItem('monfit_badges',JSON.stringify(a)); }
+
+function showBadgePopup(b){
+  const p=document.getElementById('badge-popup');
+  document.getElementById('bp-icon').textContent=b.icon;
+  document.getElementById('bp-name').textContent=b.name;
+  p.classList.add('show');
+  setTimeout(()=>p.classList.remove('show'),2500);
+}
+
+function checkBadges(){
+  const st=parseInt(document.getElementById('g-streak').textContent)||0;
+  const mi=parseInt(document.getElementById('g-missed').textContent)||0;
+  const unlocked=getUnlocked();
+  let changed=false;
+  BADGES.forEach(b=>{
+    if(!unlocked.includes(b.id)&&b.check(state.sessions,st,mi)){
+      unlocked.push(b.id); changed=true;
+      setTimeout(()=>showBadgePopup(b),500);
+    }
+  });
+  if(changed) saveUnlocked(unlocked);
+  renderBadges(unlocked);
+}
+
+function renderBadges(unlocked){
+  const grid=document.getElementById('badges-grid');
+  grid.innerHTML='';
+  BADGES.forEach(b=>{
+    const isU=unlocked.includes(b.id);
+    const div=document.createElement('div');
+    div.className='badge '+(isU?b.col:'locked');
+    div.title=b.id;
+    div.innerHTML=`<div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ═══ STATE ═══
+const STORAGE_KEY='monfit_v2';
+let state=load();
+const today=new Date();
+let curY=today.getFullYear(), curM=today.getMonth()+1;
+try{ const n=JSON.parse(localStorage.getItem('monfit_nav')||'null'); if(n){curY=n.y;curM=n.m;} }catch{}
+
+function load(){ try{ const r=localStorage.getItem(STORAGE_KEY); return r?JSON.parse(r):{sessions:{},weights:{}}; }catch{return{sessions:{},weights:{}};} }
+function saveNav(){ localStorage.setItem('monfit_nav',JSON.stringify({y:curY,m:curM})); }
+
+let saveTimer;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    const dot=document.getElementById('save-dot');
+    dot.classList.add('visible');
+    setTimeout(()=>dot.classList.remove('visible'),1200);
+  },300);
+}
+
+function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
+function firstWeekday(y,m){ const d=new Date(y,m-1,1).getDay(); return d===0?6:d-1; }
+function weekday(y,m,d){ const w=new Date(y,m-1,d).getDay(); return w===0?6:w-1; }
+function isToday(y,m,d){ return y===today.getFullYear()&&m===today.getMonth()+1&&d===today.getDate(); }
+function mk(y,m){ return `${y}-${m}`; }
+function dk(y,m,d){ return `${y}-${m}-${d}`; }
+
+function showToast(e){ const t=document.getElementById('toast'); t.textContent=e; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),700); }
+
+function render(){
+  const prog=getProg(curY,curM);
+  document.getElementById('m-name').textContent=MONTHS[curM-1].toUpperCase();
+  document.getElementById('m-year').textContent=curY;
+  document.getElementById('prog-name').textContent=prog.n;
+  document.getElementById('prog-target').textContent=prog.t;
+
+  const wData=state.weights[mk(curY,curM)]||{};
+  document.getElementById('w-start').value=wData.start??'';
+  document.getElementById('w-end').value=wData.end??'';
+  updateLoss();
+
+  document.getElementById('day-headers').innerHTML=DAYS.map((d,i)=>`<div class="dh ${DH_CLASS[i]||'dh-rest'}">${d}</div>`).join('');
+
+  const cal=document.getElementById('calendar');
+  cal.innerHTML='';
+  const total=daysInMonth(curY,curM);
+  const first=firstWeekday(curY,curM);
+  for(let i=0;i<first;i++){ const e=document.createElement('div'); e.className='cell empty'; cal.appendChild(e); }
+
+  let mDone=0,mMissed=0,mWork=0;
+  for(let d=1;d<=total;d++){
+    const wd=weekday(curY,curM,d);
+    const sched=wd===6?null:SCHED[wd];
+    const key=dk(curY,curM,d);
+    const status=state.sessions[key];
+    const cell=document.createElement('div');
+
+    if(sched){
+      mWork++;
+      cell.className=`cell workday t-${sched.type}`;
+      if(status==='done'){cell.classList.add('done');mDone++;}
+      if(status==='missed'){cell.classList.add('missed');mMissed++;}
+      if(status){
+        const ov=document.createElement('div'); ov.className='status-emoji';
+        ov.textContent=status==='done'?'✅':'❌'; cell.appendChild(ov);
+        const num=document.createElement('div'); num.style.cssText='position:absolute;top:4px;left:6px;font-size:9px;color:rgba(255,255,255,0.3);font-family:monospace';
+        num.textContent=d; cell.appendChild(num);
+      } else {
+        cell.innerHTML=`<div class="cell-num">${d}</div><div class="cell-icon">${sched.icon}</div>`;
+      }
+      cell.addEventListener('click',()=>tap(key,cell));
+    } else {
+      cell.className='cell';
+      cell.innerHTML=`<div class="cell-num">${d}</div>`;
+    }
+
+    if(isToday(curY,curM,d)){ cell.classList.add('today'); if(!sched){const p=document.createElement('div');p.className='today-pip';cell.appendChild(p);} }
+    cal.appendChild(cell);
+  }
+
+  const left=mWork-mDone-mMissed;
+  const pct=mWork>0?Math.round((mDone/mWork)*100):0;
+  document.getElementById('bar-fill').style.width=pct+'%';
+  document.getElementById('mp-pct').textContent=pct+'%';
+  document.getElementById('mp-done').textContent=`${mDone} réalisée${mDone>1?'s':''}`;
+  document.getElementById('mp-missed').textContent=`${mMissed} manquée${mMissed>1?'s':''}`;
+  document.getElementById('mp-left').textContent=`${left} restante${left>1?'s':''}`;
+  updateGlobal();
+}
+
+function tap(key,cell){
+  const cur=state.sessions[key];
+  let next;
+  if(!cur) next='done';
+  else if(cur==='done') next='missed';
+  else next=null;
+  if(next) state.sessions[key]=next; else delete state.sessions[key];
+  save();
+  cell.classList.add('popping');
+  cell.addEventListener('animationend',()=>cell.classList.remove('popping'),{once:true});
+  showToast(next==='done'?'✅':next==='missed'?'❌':'↩️');
+  render();
+  setTimeout(checkBadges,100);
+}
+
+function updateLoss(){
+  const s=parseFloat(document.getElementById('w-start').value);
+  const e=parseFloat(document.getElementById('w-end').value);
+  const el=document.getElementById('w-loss');
+  if(!isNaN(s)&&!isNaN(e)){
+    const d=+(s-e).toFixed(1);
+    el.value=d>0?`−${d} kg`:`+${Math.abs(d)} kg`;
+    el.className='w-input '+(d>0?'loss-pos':'loss-neg');
+  } else { el.value=''; el.className='w-input'; }
+}
+
+function updateGlobal(){
+  const d=done(state.sessions), mi=missed(state.sessions);
+  let streak=0;
+  const allDone=Object.keys(state.sessions).filter(k=>state.sessions[k]==='done').sort().reverse();
+  if(allDone.length){
+    let prev=null, s=0;
+    for(const k of allDone){
+      const [y,m,d]=k.split('-').map(Number);
+      const date=new Date(y,m-1,d);
+      if(!prev){s=1;prev=date;continue;}
+      if(Math.round((prev-date)/86400000)<=2){s++;prev=date;}else break;
+    }
+    streak=s;
+  }
+  document.getElementById('g-done').textContent=d;
+  document.getElementById('g-missed').textContent=mi;
+  document.getElementById('g-streak').textContent=streak;
+}
+
+['w-start','w-end'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const key=mk(curY,curM);
+    if(!state.weights[key]) state.weights[key]={};
+    state.weights[key][id==='w-start'?'start':'end']=document.getElementById(id).value;
+    save(); updateLoss();
+  });
+});
+
+document.getElementById('prev').addEventListener('click',()=>{
+  curM--; if(curM<1){curM=12;curY--;}
+  if(curY<2026||(curY===2026&&curM<5)){curY=2026;curM=5;}
+  saveNav(); render();
+});
+
+document.getElementById('next').addEventListener('click',()=>{
+  curM++; if(curM>12){curM=1;curY++;}
+  saveNav(); render();
+});
+
+render();
+renderBadges(getUnlocked());
+checkBadges();
+</script>
+</body>
+</html>
