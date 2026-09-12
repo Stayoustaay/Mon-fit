@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MonFit">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-512.png">
+<title>MonFit</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none;background:#030303}
+body{background:radial-gradient(circle at 50% 20%,#170305 0%,#080808 42%,#020202 100%);color:#f0f0f0;font-family:'Syne',sans-serif;padding-bottom:80px;isolation:isolate}
+
+/* ── FOND VIVANT GRIMDARK ── */
+.grim-bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1;background:radial-gradient(circle at 50% 0%,rgba(120,0,0,.14),transparent 38%),linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.8))}
+.grim-bg::before{content:'';position:absolute;inset:-30%;background:radial-gradient(circle,rgba(120,0,0,.08) 0 1px,transparent 2px);background-size:70px 70px;opacity:.45;animation:grimMist 22s linear infinite}
+.grim-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.72),transparent 18%,transparent 82%,rgba(0,0,0,.72));}
+.grim-creature{position:absolute;opacity:.055;filter:grayscale(1) drop-shadow(0 0 18px rgba(180,0,0,.35));font-size:clamp(90px,18vw,260px);line-height:1;animation:drift 24s ease-in-out infinite alternate;user-select:none}
+.grim-creature.c1{left:-5vw;top:12vh;animation-duration:28s}.grim-creature.c2{right:-6vw;top:38vh;animation-duration:34s;animation-direction:alternate-reverse}.grim-creature.c3{left:32vw;bottom:-8vh;font-size:clamp(70px,13vw,190px);animation-duration:22s}.grim-creature.c4{right:20vw;top:-6vh;font-size:clamp(60px,10vw,150px);animation-duration:30s}
+.ember{position:absolute;width:3px;height:3px;border-radius:50%;background:#b51212;box-shadow:0 0 12px #cc0000;opacity:.5;animation:emberFly linear infinite}
+@keyframes drift{0%{transform:translate3d(-2vw,0,0) rotate(-4deg)}50%{transform:translate3d(2vw,-4vh,0) rotate(4deg)}100%{transform:translate3d(-1vw,3vh,0) rotate(-2deg)}}
+@keyframes emberFly{0%{transform:translateY(110vh) translateX(0);opacity:0}15%{opacity:.65}100%{transform:translateY(-15vh) translateX(70px);opacity:0}}
+@keyframes grimMist{from{transform:translate3d(-2%,0,0)}to{transform:translate3d(2%,-3%,0)}}
+@media (prefers-reduced-motion:reduce){.grim-creature,.ember,.grim-bg::before{animation:none!important}}
+
+/* ── QUOTE ── */
+.quote{background:#0d0000;border-bottom:2px solid #7a0000;padding:14px 20px;position:relative}
+.quote-skulls{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.q-skull{color:#7a0000;font-size:13px}
+.q-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,#7a0000,transparent)}
+.quote-text{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:#e8d5b0;line-height:1.6;text-align:center;text-shadow:0 0 16px rgba(120,0,0,.5);margin-bottom:8px}
+.quote-bottom{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.quote-author{font-family:'Cinzel',serif;font-size:9px;color:#7a0000;font-weight:700;letter-spacing:2px;white-space:nowrap}
+.quote-btn{display:block;width:100%;background:transparent;border:none;color:#7a0000;font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;padding:4px;cursor:pointer;text-align:center}
+
+/* ── HEADER ── */
+.header{background:rgba(10,10,10,.95);backdrop-filter:blur(20px);border-bottom:1px solid #222;padding:14px 20px;position:sticky;top:0;z-index:50}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.5px}
+.logo em{color:#cc0000;font-style:normal}
+.logo small{color:#555;font-size:12px;font-weight:400;margin-left:4px}
+.pill{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:5px 12px;font-size:12px;color:#555;font-family:'DM Mono',monospace}
+.pill b{color:#c8a000}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#151515;border:1px solid #222;border-radius:8px;padding:10px 6px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.s-g::before{background:#00c853}.s-r::before{background:#cc0000}.s-o::before{background:#c8a000}
+.stat-val{font-size:22px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:2px}
+.s-g .stat-val{color:#00c853}.s-r .stat-val{color:#cc0000}.s-o .stat-val{color:#c8a000}
+.stat-lbl{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+
+/* ── BADGES ── */
+.badges{padding:12px 20px}
+.badges-title{font-family:'Cinzel',serif;font-size:9px;color:#7a0000;letter-spacing:2px;font-weight:700;margin-bottom:8px}
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.badge{border-radius:8px;padding:8px 4px;text-align:center;position:relative;overflow:hidden;border:1px solid #222}
+.badge::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent}
+.badge.locked{opacity:.2;filter:grayscale(1);background:#111}
+.badge.u-red{background:rgba(139,0,0,.18);border-color:#7a0000}.badge.u-red::before{background:#cc0000}
+.badge.u-gold{background:rgba(180,130,0,.15);border-color:#8a6400}.badge.u-gold::before{background:#c8a000}
+.badge.u-green{background:rgba(0,100,40,.18);border-color:#005a28}.badge.u-green::before{background:#00c853}
+.badge.u-purple{background:rgba(80,0,120,.18);border-color:#3d0066}.badge.u-purple::before{background:#9932cc}
+.badge-icon{font-size:20px;line-height:1;margin-bottom:3px}
+.badge-name{font-family:'Cinzel',serif;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#444;margin-bottom:3px}
+.badge-prog-wrap{width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:2px 0}
+.badge-prog-bar{height:100%;background:#555;border-radius:3px;transition:width .4s ease}
+.badge-prog-txt{font-size:7px;color:#555;font-family:'DM Mono',monospace}
+.badge-check{font-size:8px;color:#00c853;font-weight:700;margin-top:1px}
+.badge.u-red .badge-prog-bar{background:#cc0000}
+.badge.u-gold .badge-prog-bar{background:#c8a000}
+.badge.u-green .badge-prog-bar{background:#00c853}
+.badge.u-purple .badge-prog-bar{background:#9932cc}
+.badge.u-red .badge-name{color:#cc0000}
+.badge.u-gold .badge-name{color:#c8a000}
+.badge.u-green .badge-name{color:#00c853}
+.badge.u-purple .badge-name{color:#9932cc}
+.badge.u-red .badge-name{color:#cc0000}.badge.u-gold .badge-name{color:#c8a000}
+.badge.u-green .badge-name{color:#00c853}.badge.u-purple .badge-name{color:#9932cc}
+
+/* ── BADGE POPUP ── */
+.badge-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.7);background:#1a1a1a;border:2px solid #c8a000;border-radius:16px;padding:24px 32px;text-align:center;z-index:300;opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.badge-popup.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.bp-icon{font-size:44px;margin-bottom:8px}
+.bp-label{font-size:10px;color:#c8a000;font-family:'Cinzel',serif;letter-spacing:1px;margin-bottom:4px}
+.bp-name{font-size:15px;font-weight:800;color:#f0f0f0}
+
+/* ── MONTH NAV ── */
+.month-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0}
+.month-display{text-align:center}
+.month-name{font-size:34px;font-weight:800;letter-spacing:-1px;text-transform:uppercase;line-height:1}
+.month-year{font-size:12px;color:#555;font-family:'DM Mono',monospace;letter-spacing:2px;margin-top:2px}
+.nav-btn{width:42px;height:42px;border-radius:50%;background:#151515;border:1px solid #222;color:#f0f0f0;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s}
+.nav-btn:active{background:#222;transform:scale(.9)}
+
+/* ── PROG STRIP ── */
+.prog-strip{margin:12px 20px 0;background:linear-gradient(135deg,rgba(139,0,0,.08),rgba(0,0,0,.2));border:1px solid rgba(139,0,0,.2);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.prog-name{font-size:13px;font-weight:700;color:#cc0000}
+.prog-target{font-family:'DM Mono',monospace;font-size:12px;color:#c8a000;white-space:nowrap}
+.prog-target-input{font-family:'DM Mono',monospace;font-size:12px;color:#c8a000;background:#0a0a0a;border:1px solid #3a2b00;border-radius:6px;padding:6px 8px;width:118px;text-align:center;outline:none;white-space:nowrap}
+.prog-target-input:focus{border-color:#c8a000;box-shadow:0 0 12px rgba(200,160,0,.18)}
+
+/* ── WEIGHT ── */
+.weight-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 20px 0}
+@media(max-width:480px){.weight-row{grid-template-columns:repeat(2,1fr)}}
+.w-card{background:#151515;border:1px solid #222;border-radius:8px;padding:8px;text-align:center}
+.w-label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px;font-weight:700}
+.w-input{width:100%;background:#0a0a0a;border:1px solid #222;border-radius:6px;color:#c8a000;font-size:16px;font-weight:700;text-align:center;padding:4px;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none}
+.w-input:focus{border-color:#c8a000}
+.w-loss-pos{color:#00c853!important}.w-loss-neg{color:#cc0000!important}
+
+/* ── CALENDAR ── */
+.day-headers{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:14px 20px 3px}
+.dh{text-align:center;font-size:9px;font-weight:800;padding:5px 0;border-radius:5px;text-transform:uppercase;letter-spacing:.3px}
+.dh-run{color:#ff6b7a;background:rgba(204,0,0,.1)}
+.dh-walk{color:#7ec8e3;background:rgba(41,182,246,.08)}
+.dh-big{color:#5dbb7a;background:rgba(0,200,80,.08)}
+
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:0 20px}
+
+.cell{aspect-ratio:1;border-radius:8px;background:#111;border:1px solid #1e1e1e;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:40px;transition:transform .1s}
+.cell.empty{background:transparent;border-color:transparent}
+.cell.workday{cursor:pointer}
+.cell.workday:active{transform:scale(.86)}
+
+.cell.t-run{background:rgba(204,0,0,.07);border-color:rgba(204,0,0,.2)}
+.cell.t-walk{background:rgba(41,182,246,.05);border-color:rgba(41,182,246,.15)}
+.cell.t-big{background:rgba(0,200,80,.05);border-color:rgba(0,200,80,.15)}
+
+.cell.t-run::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#cc0000}
+.cell.t-walk::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#29b6f6}
+.cell.t-big::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#00c853}
+
+.cell-num{font-size:13px;font-weight:700;line-height:1;font-family:'DM Mono',monospace}
+.cell-icon{font-size:10px;margin-top:1px;line-height:1}
+
+.cell.today{box-shadow:0 0 0 2px #c8a000;border-color:#c8a000!important}
+.today-pip{position:absolute;bottom:3px;width:4px;height:4px;background:#c8a000;border-radius:50%}
+
+.cell.done{background:rgba(0,200,80,.14)!important;border-color:rgba(0,200,80,.45)!important}
+.cell.missed{background:rgba(204,0,0,.12)!important;border-color:rgba(204,0,0,.4)!important}
+.status-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+
+/* ── PROGRESS ── */
+.progress{margin:12px 20px 0;background:#151515;border:1px solid #222;border-radius:10px;padding:12px 14px}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-title{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#555;font-weight:700}
+.prog-pct{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#00c853}
+.bar-track{background:#0a0a0a;border-radius:20px;height:5px;overflow:hidden;margin-bottom:8px}
+.bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#00c853,#29b6f6);transition:width .5s ease}
+.prog-stats{display:flex;justify-content:space-between;font-size:11px;font-family:'DM Mono',monospace}
+.p-done{color:#00c853}.p-missed{color:#cc0000}.p-left{color:#555}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:12px;flex-wrap:wrap;padding:10px 20px 0}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:#555;font-weight:700}
+.leg-dot{width:7px;height:7px;border-radius:2px}
+
+/* ── BOTTOM ── */
+.bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,10,.96);backdrop-filter:blur(16px);border-top:1px solid #1e1e1e;padding:10px 20px;display:flex;justify-content:center;gap:24px;z-index:50}
+.hint{font-size:10px;color:#444;font-family:'DM Mono',monospace}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);background:#1a1a1a;border:1px solid #333;border-radius:14px;padding:14px 22px;font-size:30px;text-align:center;z-index:200;opacity:0;transition:all .2s ease;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+/* ── BADGE INFO POPUP ── */
+.badge-info{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);background:#1a1a1a;border:1px solid #333;border-radius:14px;padding:20px 24px;text-align:center;z-index:250;opacity:0;transition:all .25s ease;pointer-events:none;min-width:220px}
+.badge-info.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.bi-icon{font-size:36px;margin-bottom:8px}
+.bi-name{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:#f0f0f0;margin-bottom:6px}
+.bi-desc{font-size:11px;color:#888;margin-bottom:10px}
+.bi-progress{background:#0a0a0a;border-radius:20px;height:5px;overflow:hidden;margin-bottom:6px}
+.bi-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#cc0000,#c8a000);transition:width .4s ease}
+.bi-status{font-family:'DM Mono',monospace;font-size:11px;color:#c8a000;font-weight:700}
+.bi-locked{color:#555;font-size:10px;margin-top:4px}
+
+/* ── SAVE DOT ── */
+.save-dot{width:5px;height:5px;background:#00c853;border-radius:50%;display:inline-block;margin-left:5px;opacity:0;transition:opacity .3s;vertical-align:middle}
+.save-dot.on{opacity:1}
+
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(.85)}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+.cell.popping{animation:pop .25s ease}
+
+/* ── EFFETS TRANSITIONS ── */
+@keyframes slam{0%{transform:scale(.25) rotate(-8deg);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes fly{to{transform:translate(var(--tx),var(--ty)) rotate(180deg);opacity:0}}
+
+.spark{position:fixed;pointer-events:none;font-size:16px;animation:fly .9s forwards;z-index:200}
+
+/* ── BADGE POPUP — CENTRAGE ROBUSTE ── */
+.badge-popup{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  margin:0 !important;
+  padding:20px !important;
+  transform:none !important;
+  background:rgba(0,0,0,.88) !important;
+  z-index:99999 !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+.badge-popup.show{display:flex !important;transform:none !important;}
+.badge-card{
+  width:min(82vw,320px) !important;
+  max-width:320px !important;
+  margin:auto !important;
+  background:linear-gradient(145deg,#1b0d10,#0d0b0f);
+  border:2px solid #c8a000;
+  border-radius:20px;
+  padding:28px 20px;
+  text-align:center;
+  box-shadow:0 30px 100px #000;
+  animation:slam .5s cubic-bezier(.2,1.5,.4,1);
+  position:relative;
+}
+.badge-card .bp-icon{font-size:64px;filter:drop-shadow(0 0 20px #c8a00099);margin-bottom:8px}
+.badge-card .bp-label{font-family:'Cinzel',serif;font-size:10px;color:#c8a000;letter-spacing:2px;margin-bottom:6px}
+.badge-card .bp-name{font-size:18px;font-weight:800;color:#f0f0f0;margin-bottom:6px}
+.badge-card .bp-desc{color:#888;font-size:12px;line-height:1.5;margin-bottom:16px}
+.badge-close{border:1px solid #444;background:#1a1a1a;color:#f0f0f0;padding:10px 20px;border-radius:8px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;cursor:pointer}
+/* Badge detail modal */
+.badge-detail{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:20px;z-index:140}
+.badge-detail.show{display:flex}
+.detail-card{max-width:320px;width:100%;background:linear-gradient(145deg,#18161b,#0d0b0f);border:1px solid #333;border-radius:20px;padding:24px;text-align:center}
+.detail-icon{font-size:48px;margin-bottom:8px}
+.detail-name{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:#f0f0f0;margin-bottom:8px}
+.detail-desc{color:#888;font-size:12px;line-height:1.5;margin-bottom:16px}
+.detail-close{border:1px solid #333;background:#111;color:#888;padding:8px 18px;border-radius:8px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;cursor:pointer}
+
+</style>
+</head>
+<body>
+
+<!-- FOND VIVANT GRIMDARK -->
+<div class="grim-bg" aria-hidden="true">
+  <span class="grim-creature c1">☠</span>
+  <span class="grim-creature c2">👹</span>
+  <span class="grim-creature c3">💀</span>
+  <span class="grim-creature c4">👁</span>
+  <i class="ember" style="left:8%;animation-duration:11s;animation-delay:-2s"></i><i class="ember" style="left:21%;animation-duration:15s;animation-delay:-8s"></i><i class="ember" style="left:39%;animation-duration:13s;animation-delay:-5s"></i><i class="ember" style="left:61%;animation-duration:17s;animation-delay:-11s"></i><i class="ember" style="left:77%;animation-duration:12s;animation-delay:-4s"></i><i class="ember" style="left:92%;animation-duration:16s;animation-delay:-9s"></i>
+</div>
+
+<!-- CITATION LOGEN -->
+<div class="quote">
+  <div class="quote-skulls">
+    <span class="q-skull">☠</span>
+    <div class="q-line"></div>
+    <span class="q-skull">☠</span>
+  </div>
+  <div class="quote-text" id="q-text">L'homme qui recule ne recule que vers sa tombe.</div>
+  <div class="quote-bottom">
+    <div class="q-line"></div>
+    <div class="quote-author" id="q-author">— Logen Neuf Doigts</div>
+    <div class="q-line"></div>
+  </div>
+  <button class="quote-btn" onclick="nextQuote()">☩ Nouvelle citation ☩</button>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo">Mon<em>Fit</em><small>2026·27</small><span class="save-dot" id="save-dot"></span></div>
+    <div class="pill" id="weight-pill">102 → <b>72 kg</b></div>
+  </div>
+  <div class="stats">
+    <div class="stat s-g"><div class="stat-val" id="g-done">0</div><div class="stat-lbl">✅ Faites</div></div>
+    <div class="stat s-r"><div class="stat-val" id="g-missed">0</div><div class="stat-lbl">❌ Manquées</div></div>
+    <div class="stat s-o"><div class="stat-val" id="g-streak">0</div><div class="stat-lbl">🔥 Série</div></div>
+  </div>
+</div>
+
+<!-- BADGES -->
+<div class="badges">
+  <div class="badges-title">⚔ Trophées de Guerre</div>
+  <div class="badges-grid" id="badges-grid"></div>
+</div>
+
+<!-- MONTH NAV -->
+<div class="month-nav">
+  <button class="nav-btn" id="prev">‹</button>
+  <div class="month-display">
+    <div class="month-name" id="m-name">SEPTEMBRE</div>
+    <div class="month-year" id="m-year">2026</div>
+  </div>
+  <button class="nav-btn" id="next">›</button>
+</div>
+
+<!-- PROGRAMME -->
+<div class="prog-strip">
+  <div class="prog-name" id="prog-name">Foundation</div>
+  <input class="prog-target-input" id="prog-target" type="text" value="102 → 95 kg" aria-label="Objectif de poids du mois">
+</div>
+
+<!-- POIDS -->
+<div class="weight-row">
+  <div class="w-card"><label class="w-label">Début du mois</label><input class="w-input" id="w-start" type="number" step="0.1" placeholder="102"></div>
+  <div class="w-card"><label class="w-label">Fin / dernier poids</label><input class="w-input" id="w-end" type="number" step="0.1" placeholder="100"></div>
+  <div class="w-card"><label class="w-label">Poids actuel</label><input class="w-input" id="w-current" placeholder="···" readonly></div>
+  <div class="w-card"><label class="w-label">Perte du mois</label><input class="w-input" id="w-loss" placeholder="···" readonly></div>
+</div>
+
+<!-- CALENDRIER -->
+<div class="day-headers" id="day-headers"></div>
+<div class="calendar" id="calendar"></div>
+
+<!-- LÉGENDE -->
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#cc0000"></div>Running</div>
+  <div class="leg"><div class="leg-dot" style="background:#29b6f6"></div>Marche</div>
+  <div class="leg"><div class="leg-dot" style="background:#00c853"></div>Darebee</div>
+  <div class="leg"><div class="leg-dot" style="background:#c8a000"></div>Aujourd'hui</div>
+</div>
+
+<!-- PROGRESSION -->
+<div class="progress">
+  <div class="prog-header">
+    <div class="prog-title">Progression du mois</div>
+    <div class="prog-pct" id="prog-pct">0%</div>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
+  <div class="prog-stats">
+    <span class="p-done" id="p-done">0 réalisées</span>
+    <span class="p-missed" id="p-missed">0 manquées</span>
+    <span class="p-left" id="p-left">0 restantes</span>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- BADGE UNLOCK POPUP -->
+<div class="badge-popup" id="badge-popup">
+  <div class="badge-card">
+    <div class="bp-icon" id="bp-icon">🏆</div>
+    <div class="bp-label">⚔ TROPHÉE DE GUERRE ⚔</div>
+    <div class="bp-name" id="bp-name">Badge débloqué !</div>
+    <div class="bp-desc" id="bp-desc">Tu viens de gagner ce trophée. La guerre continue.</div>
+    <button class="badge-close" onclick="closeBadgePopup()" style="cursor:pointer;z-index:100001;position:relative">FERMER ✕</button>
+  </div>
+</div>
+
+<!-- BADGE DETAIL MODAL -->
+<div class="badge-detail" id="badge-detail">
+  <div class="detail-card">
+    <div class="detail-icon" id="d-icon">🏆</div>
+    <div class="detail-name" id="d-name">Badge</div>
+    <div class="detail-desc" id="d-desc">Description</div>
+    <button class="detail-close" onclick="document.getElementById('badge-detail').classList.remove('show')">FERMER</button>
+  </div>
+</div>
+
+<!-- BADGE INFO -->
+<div class="badge-info" id="badge-info">
+  <div class="bi-icon" id="bi-icon">🏆</div>
+  <div class="bi-name" id="bi-name">Badge</div>
+  <div class="bi-desc" id="bi-desc">Description</div>
+  <div class="bi-progress"><div class="bi-fill" id="bi-fill" style="width:0%"></div></div>
+  <div class="bi-status" id="bi-status">0 / 0</div>
+  <div class="bi-locked" id="bi-locked">Appuyez ailleurs pour fermer</div>
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+  <div class="hint">1× tap → ✅</div>
+  <div class="hint">2× taps → ❌</div>
+  <div class="hint">3× taps → reset</div>
+</div>
+
+<script>
+// ═══════════════ DATA ═══════════════
+const MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const DAYS   = ["LUN","MAR","MER","JEU","VEN","SAM","DIM"];
+const DH_CLASS = ["dh-walk","dh-run","dh-walk","dh-run","dh-run","dh-big","dh-big"];
+
+const SCHED = {
+  0:{icon:"🚶",label:"Marche",     type:"walk"},
+  1:{icon:"🏃",label:"Running",    type:"run"},
+  2:{icon:"🚶",label:"Récup",      type:"walk"},
+  3:{icon:"🏃",label:"Running",    type:"run"},
+  4:{icon:"🏃",label:"Running",    type:"run"},
+  5:{icon:"💪",label:"Darebee+Run",type:"big"},
+  6:{icon:"💪",label:"Darebee",    type:"big"},
+};
+
+const PROGRAMS = {
+  "2026-5":{n:"Foundation",t:"102 → 95 kg"},
+  "2026-6":{n:"30 Days of Change",t:"95 → 88 kg"},
+  "2026-7":{n:"Total Body Strength",t:"88 → 84 kg"},
+  "2026-8":{n:"Total Body Strength",t:"84 → 81 kg"},
+  "2026-9":{n:"30 Days of Change",t:"81 → 79 kg"},
+  "2026-10":{n:"Total Body Strength+",t:"79 → 77 kg"},
+  "2026-11":{n:"Programme libre",t:"77 → 75 kg"},
+  "2026-12":{n:"Fêtes actif 🎄",t:"75 → 75 kg"},
+  "2027-1":{n:"Nouveau cycle",t:"75 → 73 kg"},
+  "2027-2":{n:"Total Body Strength+",t:"73 → 72 kg"},
+  "2027-3":{n:"30 Days of Change",t:"72 → 72 kg"},
+  "2027-4":{n:"OBJECTIF ATTEINT 🏆",t:"72 kg !"},
+};
+
+function getProg(y,m){
+  const key=`${y}-${m}`;
+  const p = PROGRAMS[key] || {n:"Maintien à vie 💪",t:`${MONTHS[m-1]} ${y}`};
+  return {...p, t:(state && state.targets && state.targets[key]) || p.t};
+}
+
+const QUOTES = [
+  {t:"L'homme qui recule ne recule que vers sa tombe.",a:"Logen Neuf Doigts"},
+  {t:"Encore en vie. C'est suffisant pour commencer.",a:"Logen Neuf Doigts"},
+  {t:"Tu peux saigner, tu peux souffrir. Mais tu continues quand même.",a:"Le Neuvième Rescapé"},
+  {t:"Chaque jour est une chance de prouver que tu mérites de vivre.",a:"Logen Neuf Doigts"},
+  {t:"Les lâches meurent mille fois. Les guerriers ne meurent qu'une fois.",a:"Bayaz, Premier des Mages"},
+  {t:"La douleur est temporaire. Abandonner est éternel.",a:"Le Prince Écorché"},
+  {t:"Chaque séance cochée est un jour volé à la faiblesse.",a:"Logen Neuf Doigts"},
+  {t:"Il faut être encore en vie pour changer. Alors vis. Et change.",a:"Logen Neuf Doigts"},
+  {t:"Ce n'est pas la force qui fait le guerrier. C'est la volonté de se relever.",a:"Ferro Maljinn"},
+  {t:"Le monde n'attend pas que tu sois prêt. Avance quand même.",a:"Bayaz, Premier des Mages"},
+  {t:"Les cicatrices prouvent que tu as survécu. Continue à en gagner.",a:"Le Neuvième Rescapé"},
+  {t:"La peur ne disparaît pas. Tu apprends juste à marcher avec elle.",a:"Logen Neuf Doigts"},
+  {t:"Un homme qui se relève après tout — voilà le vrai courage.",a:"Logen Neuf Doigts"},
+  {t:"Mieux vaut mourir debout que vivre à genoux.",a:"Le Prince Écorché"},
+  {t:"Aujourd'hui tu as transpiré. Demain tu seras plus fort.",a:"Bayaz, Premier des Mages"},
+  {t:"Chaque pas que tu fais est un pas que la faiblesse n'a pas fait.",a:"Logen Neuf Doigts"},
+  {t:"Il ne s'agit pas d'être le meilleur. Il s'agit de ne pas abandonner.",a:"Ferro Maljinn"},
+  {t:"Ce n'est pas le destin qui forge un homme. C'est chaque choix qu'il fait.",a:"Logen Neuf Doigts"},
+  {t:"Frappe pas aussi fort que tu aimerais. Frappe aussi fort que tu peux.",a:"Le Neuvième Rescapé"},
+  {t:"Et si on se levait, juste pour voir ce qui se passe ?",a:"Logen Neuf Doigts"},
+];
+
+const BADGES = [
+  {id:"first",  icon:"🩸",name:"Premier Sang",  col:"u-red",   type:"done", target:1,  desc:"Cochez votre 1ère séance",         check:(d,s,m)=>d>=1},
+  {id:"surv",   icon:"💀",name:"Survivant",     col:"u-red",   type:"done", target:7,  desc:"Réalisez 7 séances au total",       check:(d,s,m)=>d>=7},
+  {id:"half",   icon:"⚖️",name:"Mi-Chemin",     col:"u-green", type:"done", target:15, desc:"Réalisez 15 séances au total",      check:(d,s,m)=>d>=15},
+  {id:"war",    icon:"⚔️",name:"Guerrier",      col:"u-purple",type:"done", target:20, desc:"Réalisez 20 séances au total",      check:(d,s,m)=>d>=20},
+  {id:"iron",   icon:"🪖",name:"Volonté de Fer",col:"u-purple",type:"done", target:30, desc:"Réalisez 30 séances au total",      check:(d,s,m)=>d>=30},
+  {id:"leg",    icon:"👑",name:"Légende",       col:"u-gold",  type:"done", target:50, desc:"Réalisez 50 séances au total",      check:(d,s,m)=>d>=50},
+  {id:"cent",   icon:"🏛️",name:"Centurion",     col:"u-gold",  type:"done", target:100,desc:"Réalisez 100 séances au total",     check:(d,s,m)=>d>=100},
+  {id:"fire3",  icon:"🔥",name:"En Feu",        col:"u-green", type:"streak",target:3, desc:"3 séances consécutives sans pause", check:(d,s,m)=>s>=3},
+  {id:"imp7",   icon:"☠️",name:"Implacable",    col:"u-red",   type:"streak",target:7, desc:"7 séances consécutives sans pause", check:(d,s,m)=>s>=7},
+  {id:"nine14", icon:"🗡️",name:"Neuf Doigts",   col:"u-gold",  type:"streak",target:14,desc:"14 séances consécutives sans pause",check:(d,s,m)=>s>=14},
+  {id:"shield", icon:"🛡️",name:"Sans Faille",   col:"u-green", type:"nomiss",target:5, desc:"5 séances sans en manquer une",     check:(d,s,m)=>m===0&&d>=5},
+  {id:"back",   icon:"⚡",name:"Résurrection",  col:"u-purple",type:"back",  target:3, desc:"Reprenez après avoir manqué",       check:(d,s,m)=>m>=1&&d>=3},
+];
+
+// ═══════════════ STATE ═══════════════
+const KEY = 'monfit_v3';
+let state = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || {sessions:{},weights:{},targets:{}}; } catch { return {sessions:{},weights:{},targets:{}}; } })();
+if(!state.sessions) state.sessions={};
+if(!state.weights) state.weights={};
+if(!state.targets) state.targets={};
+
+const today = new Date();
+let curY = today.getFullYear();
+let curM = today.getMonth() + 1;
+
+// Restore last viewed month
+try { const n=JSON.parse(localStorage.getItem('monfit_nav')); if(n){curY=n.y;curM=n.m;} } catch {}
+
+let qIdx = Math.floor(Math.random() * QUOTES.length);
+
+// ═══════════════ HELPERS ═══════════════
+function daysInMonth(y,m){return new Date(y,m,0).getDate()}
+function firstWeekday(y,m){const d=new Date(y,m-1,1).getDay();return d===0?6:d-1}
+function weekday(y,m,d){const w=new Date(y,m-1,d).getDay();return w===0?6:w-1}
+function isToday(y,m,d){return y===today.getFullYear()&&m===today.getMonth()+1&&d===today.getDate()}
+function mk(y,m){return `${y}-${m}`}
+function dk(y,m,d){return `${y}-${m}-${d}`}
+
+let saveTimer;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    localStorage.setItem(KEY,JSON.stringify(state));
+    const dot=document.getElementById('save-dot');
+    dot.classList.add('on');
+    setTimeout(()=>dot.classList.remove('on'),1200);
+  },300);
+}
+
+function saveNav(){localStorage.setItem('monfit_nav',JSON.stringify({y:curY,m:curM}))}
+
+function showToast(e){
+  const t=document.getElementById('toast');
+  t.textContent=e;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),700);
+}
+
+// ═══════════════ QUOTES ═══════════════
+function nextQuote(){
+  qIdx=(qIdx+1)%QUOTES.length;
+  document.getElementById('q-text').textContent=QUOTES[qIdx].t;
+  document.getElementById('q-author').textContent='— '+QUOTES[qIdx].a;
+}
+
+// Init quote
+document.getElementById('q-text').textContent=QUOTES[qIdx].t;
+document.getElementById('q-author').textContent='— '+QUOTES[qIdx].a;
+setInterval(()=>{qIdx=(qIdx+1)%QUOTES.length;document.getElementById('q-text').textContent=QUOTES[qIdx].t;document.getElementById('q-author').textContent='— '+QUOTES[qIdx].a;},3600000);
+
+// ═══════════════ BADGES ═══════════════
+// Badges calculés en temps réel — jamais sauvegardés
+// Les badges reflètent TOUJOURS la vraie progression actuelle
+function getUnlocked(){
+  const mDone=getMonthDone();
+  const mMissed=getMonthMissed();
+  const mStreak=getMonthStreak();
+  return BADGES.filter(b=>b.check(mDone,mStreak,mMissed)).map(b=>b.id);
+}
+function saveUnlocked(u){} // Plus de sauvegarde — calculé live
+
+function showBadgePopup(b){
+  document.getElementById('bp-icon').textContent=b.icon;
+  document.getElementById('bp-name').textContent=b.name;
+  document.getElementById('bp-desc').textContent='Tu viens de décrocher ce trophée. Ne ralentis pas.';
+  document.getElementById('badge-popup').classList.add('show');
+}
+
+function getBadgeProgress(b,done,streak,missed){
+  let cur=0;
+  if(b.type==='done') cur=done;
+  else if(b.type==='streak') cur=streak;
+  else if(b.type==='nomiss') cur=(missed===0?done:0);
+  else if(b.type==='back') cur=(missed>=1?done:0);
+  return {cur,max:b.target};
+}
+
+function showBadgeDetail(b, isU, done, streak, missed){
+  const prog=getBadgeProgress(b,done,streak,missed);
+  document.getElementById('d-icon').textContent=b.icon;
+  document.getElementById('d-name').textContent=b.name;
+  const left=Math.max(0,prog.max-prog.cur);
+  const monthName=MONTHS[curM-1];
+  document.getElementById('d-desc').textContent=isU
+    ? `✅ Débloqué ce mois-ci ! (${monthName} ${curY})
+La guerre continue — recommence le mois prochain.`
+    : `🔒 Il te manque encore ${left} ${b.unit} ce mois-ci.
+Progression : ${prog.cur}/${prog.max}
+
+Les badges se réinitialisent chaque mois.`;
+  document.getElementById('badge-detail').classList.add('show');
+}
+
+function getMonthDone(){
+  let count=0;
+  const days=daysInMonth(curY,curM);
+  for(let d=1;d<=days;d++){
+    if(state.sessions[dk(curY,curM,d)]==='done') count++;
+  }
+  return count;
+}
+
+function getMonthMissed(){
+  let count=0;
+  const days=daysInMonth(curY,curM);
+  for(let d=1;d<=days;d++){
+    if(state.sessions[dk(curY,curM,d)]==='missed') count++;
+  }
+  return count;
+}
+
+function getMonthStreak(){
+  let streak=0;
+  const days=daysInMonth(curY,curM);
+  for(let d=days;d>=1;d--){
+    if(state.sessions[dk(curY,curM,d)]==='done') streak++;
+    else if(state.sessions[dk(curY,curM,d)]==='missed') break;
+  }
+  return streak;
+}
+
+// Track previously unlocked to detect NEW unlocks
+let prevUnlocked = [];
+
+function checkBadges(){
+  const newUnlocked = getUnlocked();
+  
+  // Detect newly unlocked badges (weren't there before)
+  newUnlocked.forEach(id => {
+    if(!prevUnlocked.includes(id)){
+      const badge = BADGES.find(b=>b.id===id);
+      if(badge) setTimeout(()=>showBadgePopup(badge), 600);
+    }
+  });
+  
+  prevUnlocked = newUnlocked;
+  renderBadges(newUnlocked);
+}
+
+function renderBadges(u){
+  const g=document.getElementById('badges-grid');
+  g.innerHTML='';
+  BADGES.forEach(b=>{
+    const isU=u.includes(b.id);
+    const div=document.createElement('div');
+    div.className='badge '+(isU?b.col:'locked');
+    div.innerHTML=`<div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div>`;
+    div.style.cursor='pointer'; div.addEventListener('click',()=>showBadgeDetail(b,isU,getMonthDone(),getMonthStreak(),getMonthMissed()));
+    g.appendChild(div);
+  });
+}
+
+function showBadgeInfo(b,isUnlocked){
+  const done=Object.values(state.sessions).filter(v=>v==='done').length;
+  const missed=Object.values(state.sessions).filter(v=>v==='missed').length;
+  const streak=parseInt(document.getElementById('g-streak').textContent)||0;
+
+  let current=0;
+  if(b.type==='done') current=done;
+  else if(b.type==='streak') current=streak;
+  else if(b.type==='nomiss') current=missed===0?done:0;
+  else if(b.type==='back') current=done;
+
+  const pct=Math.min(100,Math.round((current/b.target)*100));
+  const remaining=Math.max(0,b.target-current);
+
+  document.getElementById('bi-icon').textContent=b.icon;
+  document.getElementById('bi-name').textContent=b.name;
+  document.getElementById('bi-desc').textContent=b.desc;
+  document.getElementById('bi-fill').style.width=pct+'%';
+
+  if(isUnlocked){
+    document.getElementById('bi-status').textContent='✅ Badge débloqué !';
+    document.getElementById('bi-status').style.color='#00c853';
+    document.getElementById('bi-locked').textContent='Félicitations guerrier !';
+  } else {
+    document.getElementById('bi-status').textContent=`${current} / ${b.target}`;
+    document.getElementById('bi-status').style.color='#c8a000';
+    document.getElementById('bi-locked').textContent=
+      b.type==='streak'
+        ? `Encore ${remaining} séance${remaining>1?'s':''} consécutive${remaining>1?'s':''}`
+        : `Encore ${remaining} séance${remaining>1?'s':''} pour débloquer`;
+  }
+
+  const popup=document.getElementById('badge-info');
+  popup.classList.add('show');
+  setTimeout(()=>popup.classList.remove('show'),3000);
+}
+
+renderBadges(getUnlocked());
+
+// ═══════════════ RENDER ═══════════════
+function render(){
+  const prog=getProg(curY,curM);
+  document.getElementById('m-name').textContent=MONTHS[curM-1].toUpperCase();
+  document.getElementById('m-year').textContent=curY;
+  document.getElementById('prog-name').textContent=prog.n;
+  document.getElementById('prog-target').value=prog.t;
+
+  const wk=mk(curY,curM);
+  const wd=state.weights[wk]||{};
+  document.getElementById('w-start').value=wd.start||'';
+  document.getElementById('w-end').value=wd.end||'';
+  updateLoss();
+
+  // Day headers
+  document.getElementById('day-headers').innerHTML=DAYS.map((d,i)=>
+    `<div class="dh ${DH_CLASS[i]||''}">${d}</div>`).join('');
+
+  // Calendar
+  const cal=document.getElementById('calendar');
+  cal.innerHTML='';
+  const total=daysInMonth(curY,curM);
+  const first=firstWeekday(curY,curM);
+
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cell empty';cal.appendChild(e);}
+
+  let mDone=0,mMissed=0,mWork=0;
+
+  for(let d=1;d<=total;d++){
+    const wd2=weekday(curY,curM,d);
+    const sched=SCHED[wd2];
+    const key=dk(curY,curM,d);
+    const status=state.sessions[key];
+    const cell=document.createElement('div');
+    cell.style.animationDelay=`${d*15}ms`;
+
+    if(sched){
+      mWork++;
+      cell.className=`cell workday t-${sched.type}`;
+      if(status==='done'){cell.classList.add('done');mDone++;}
+      if(status==='missed'){cell.classList.add('missed');mMissed++;}
+
+      if(status){
+        const ov=document.createElement('div');ov.className='status-emoji';
+        ov.textContent=status==='done'?'✅':'❌';cell.appendChild(ov);
+        const num=document.createElement('div');
+        num.style.cssText='position:absolute;top:3px;left:5px;font-size:8px;color:rgba(255,255,255,.25);font-family:monospace';
+        num.textContent=d;cell.appendChild(num);
+      } else {
+        cell.innerHTML=`<div class="cell-num">${d}</div><div class="cell-icon">${sched.icon}</div>`;
+      }
+
+      cell.addEventListener('click',()=>tap(key,cell));
+    } else {
+      cell.className='cell';
+      cell.innerHTML=`<div class="cell-num">${d}</div>`;
+    }
+
+    if(isToday(curY,curM,d)){
+      cell.classList.add('today');
+      if(!sched){const p=document.createElement('div');p.className='today-pip';cell.appendChild(p);}
+    }
+    cal.appendChild(cell);
+  }
+
+  const left=mWork-mDone-mMissed;
+  const pct=mWork>0?Math.round((mDone/mWork)*100):0;
+  document.getElementById('bar-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('p-done').textContent=`${mDone} réalisée${mDone>1?'s':''}`;
+  document.getElementById('p-missed').textContent=`${mMissed} manquée${mMissed>1?'s':''}`;
+  document.getElementById('p-left').textContent=`${left} restante${left>1?'s':''}`;
+
+  updateGlobal();
+}
+
+function sparks(){
+  const emojis=['⚔','✦','🔥','☠','💀','⚡'];
+  for(let i=0;i<12;i++){
+    const s=document.createElement('div');
+    s.className='spark';
+    s.textContent=emojis[i%emojis.length];
+    s.style.left='50%';s.style.top='50%';
+    s.style.setProperty('--tx',(Math.random()*280-140)+'px');
+    s.style.setProperty('--ty',(Math.random()*240-120)+'px');
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),950);
+  }
+}
+
+function tap(key,cell){
+  const cur=state.sessions[key];
+  let next;
+  if(!cur) next='done';
+  else if(cur==='done') next='missed';
+  else next=null;
+
+  if(next) state.sessions[key]=next;
+  else delete state.sessions[key];
+  save();
+
+  cell.classList.add('popping');
+  cell.addEventListener('animationend',()=>cell.classList.remove('popping'),{once:true});
+
+  if(next==='done') sparks();
+  showToast(next==='done'?'✅':next==='missed'?'❌':'↩️');
+  render();
+  setTimeout(checkBadges,100);
+}
+
+function updateLoss(){
+  const s=parseFloat(document.getElementById('w-start').value);
+  const e=parseFloat(document.getElementById('w-end').value);
+  const loss=document.getElementById('w-loss');
+  const current=document.getElementById('w-current');
+  const pill=document.getElementById('weight-pill');
+
+  // Le poids actuel est automatiquement le dernier poids renseigné.
+  // S'il n'y en a pas encore, on affiche le poids de début du mois.
+  const currentWeight=!isNaN(e)?e:(!isNaN(s)?s:null);
+  current.value=currentWeight===null?'':`${currentWeight.toFixed(1).replace('.0','')} kg`;
+
+  if(!isNaN(s)&&!isNaN(e)){
+    const diff=+(s-e).toFixed(1);
+    loss.value=diff>0?`−${diff} kg`:diff<0?`+${Math.abs(diff)} kg`:'0 kg';
+    loss.className='w-input '+(diff>0?'w-loss-pos':diff<0?'w-loss-neg':'');
+  } else {loss.value='';loss.className='w-input';}
+
+  if(pill && currentWeight!==null){
+    pill.innerHTML=`${currentWeight.toFixed(1).replace('.0','')} → <b>72 kg</b>`;
+  }
+}
+
+function updateGlobal(){
+  let done=0,missed=0;
+  Object.values(state.sessions).forEach(v=>{if(v==='done')done++;else if(v==='missed')missed++;});
+  let streak=0;
+  const allDone=Object.keys(state.sessions).filter(k=>state.sessions[k]==='done').sort().reverse();
+  if(allDone.length){
+    let prev=null,s=0;
+    for(const k of allDone){
+      const[y,m,d]=k.split('-').map(Number);
+      const date=new Date(y,m-1,d);
+      if(!prev){s=1;prev=date;continue;}
+      const diff=Math.round((prev-date)/86400000);
+      if(diff<=2){s++;prev=date;}else break;
+    }
+    streak=s;
+  }
+  document.getElementById('g-done').textContent=done;
+  document.getElementById('g-missed').textContent=missed;
+  document.getElementById('g-streak').textContent=streak;
+}
+
+// ═══════════════ EVENTS ═══════════════
+document.getElementById('prev').addEventListener('click',()=>{
+  curM--;if(curM<1){curM=12;curY--;}
+  if(curY<2026||(curY===2026&&curM<5)){curY=2026;curM=5;}
+  saveNav();render();
+});
+
+document.getElementById('next').addEventListener('click',()=>{
+  curM++;if(curM>12){curM=1;curY++;}
+  saveNav();render();
+});
+
+document.getElementById('prog-target').addEventListener('input',()=>{
+  const key=mk(curY,curM);
+  state.targets[key]=document.getElementById('prog-target').value.trim();
+  save();
+});
+
+['w-start','w-end'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    const wk=mk(curY,curM);
+    if(!state.weights[wk])state.weights[wk]={};
+    state.weights[wk][id==='w-start'?'start':'end']=document.getElementById(id).value;
+    save();updateLoss();
+  });
+});
+
+// Service worker
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+
+function closeBadgePopup(){
+  document.getElementById('badge-popup').classList.remove('show');
+}
+
+// Empêche le clic dans la carte de fermer la fenêtre par accident
+ document.querySelector('.badge-card').addEventListener('click', e=>e.stopPropagation());
+ document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeBadgePopup(); });
+
+// Tap outside to close
+document.getElementById('badge-popup').addEventListener('click', function(e){
+  if(e.target === this) closeBadgePopup();
+});
+
+// Init — calculer les badges déjà débloqués sans popup
+prevUnlocked = getUnlocked();
+render();
+</script>
+</body>
+</html>
